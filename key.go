@@ -1,6 +1,8 @@
 package ncrypto
 
 import (
+	"bytes"
+	"crypto"
 	"crypto/ecdh"
 	"crypto/ecdsa"
 	"crypto/ed25519"
@@ -8,6 +10,7 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"errors"
+	"fmt"
 	"github.com/smartwalle/ncrypto/internal"
 )
 
@@ -214,4 +217,42 @@ func (this PKIXPublicKey) ECDHPublicKey() (*ecdh.PublicKey, error) {
 		return nil, errors.New("failed to load public key")
 	}
 	return publicKey, nil
+}
+
+type PublicKeyEncoder struct {
+	key any
+}
+
+func EncodePublicKey(key crypto.PublicKey) PublicKeyEncoder {
+	return PublicKeyEncoder{key: key}
+}
+
+func (this PublicKeyEncoder) PKCS1() ([]byte, error) {
+	switch pub := this.key.(type) {
+	case *rsa.PublicKey:
+		publicBytes := x509.MarshalPKCS1PublicKey(pub)
+		block := &pem.Block{Type: "RSA PUBLIC KEY", Bytes: publicBytes}
+
+		var buffer bytes.Buffer
+		if err := pem.Encode(&buffer, block); err != nil {
+			return nil, err
+		}
+		return buffer.Bytes(), nil
+	default:
+		return nil, fmt.Errorf("unsupported public key type: %T", pub)
+	}
+}
+
+func (this PublicKeyEncoder) PKIX() ([]byte, error) {
+	publicBytes, err := x509.MarshalPKIXPublicKey(this.key)
+	if err != nil {
+		return nil, err
+	}
+	block := &pem.Block{Type: "PUBLIC KEY", Bytes: publicBytes}
+
+	var buffer bytes.Buffer
+	if err = pem.Encode(&buffer, block); err != nil {
+		return nil, err
+	}
+	return buffer.Bytes(), nil
 }

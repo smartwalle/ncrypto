@@ -27,7 +27,7 @@ pcovfv5uiQ0VRLImWeiSXKK2aTOBGn5eKbevRTxN07k=
 	}
 }
 
-func TestDecodeTestDecodeRSAPKCS1PublicKey(t *testing.T) {
+func TestDecodeRSAPKCS1PublicKey(t *testing.T) {
 	var key = `-----BEGIN RSA PUBLIC KEY-----
 MIGJAoGBALNdX+ylpf3546Mzl/XZbp4NO2zNT1/2uClcbgRDDNkjdYzn4V770Gfo
 1BAgt8XWjdn7cETMcwxxjDGtDD+2irajok9yFtQrt4CspzqmX8ZXe4h59l0qdzPl
@@ -63,7 +63,7 @@ jN0pFHTUdTCS
 	}
 }
 
-func TestDecodeTestDecodeRSAPKIXPublicKey(t *testing.T) {
+func TestDecodeRSAPKIXPublicKey(t *testing.T) {
 	var key = `-----BEGIN PUBLIC KEY-----
 MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC3RjqAXeZaJxq/cVw9j/IoBgMw
 3SLwg+2kWi/xbsf9nqDmFsOdfrMAdbXrefFKHslF9zbheHBeKvE9eIDKPrgS+FvB
@@ -74,4 +74,22 @@ zc8seHTJAi8Qp1gyLQIDAQAB
 	if err != nil {
 		t.Fatal(err)
 	}
+}
+
+func TestEncodeRSAPKCS1PublicKey(t *testing.T) {
+	var key = `-----BEGIN RSA PUBLIC KEY-----
+MIGJAoGBALNdX+ylpf3546Mzl/XZbp4NO2zNT1/2uClcbgRDDNkjdYzn4V770Gfo
+1BAgt8XWjdn7cETMcwxxjDGtDD+2irajok9yFtQrt4CspzqmX8ZXe4h59l0qdzPl
+tm8IUyCImunLvmVgqEmCi1AUR9B36Sza3SC0LTTu46OZj1AMHYRVAgMBAAE=
+-----END RSA PUBLIC KEY-----`
+	var publicKey, err = ncrypto.DecodePublicKey([]byte(key)).PKCS1().RSAPublicKey()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var bytes, _ = ncrypto.EncodePublicKey(publicKey).PKCS1()
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(string(bytes))
 }
