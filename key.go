@@ -8,41 +8,13 @@ import (
 	"crypto/ed25519"
 	"crypto/rsa"
 	"crypto/x509"
+	"encoding/base64"
 	"encoding/pem"
 	"errors"
 	"fmt"
-	"github.com/smartwalle/ncrypto/internal"
 )
 
-const (
-	kPKCS1PrivateKeyPrefix = "-----BEGIN RSA PRIVATE KEY-----"
-	kPKCS1PrivateKeySuffix = "-----END RSA PRIVATE KEY-----"
-
-	kPKCS1PublicKeyPrefix = "-----BEGIN RSA PUBLIC KEY-----"
-	kPKCS1PublicKeySuffix = "-----END RSA PUBLIC KEY-----"
-
-	kPKCS8PrivateKeyPrefix = "-----BEGIN PRIVATE KEY-----"
-	kPKCS8PrivateKeySuffix = "-----END PRIVATE KEY-----"
-
-	kPKIXPublicKeyPrefix = "-----BEGIN PUBLIC KEY-----"
-	kPKIXPublicKeySuffix = "-----END PUBLIC KEY-----"
-)
-
-func FormatPKCS1PrivateKey(raw string) []byte {
-	return internal.FormatKey(raw, kPKCS1PrivateKeyPrefix, kPKCS1PrivateKeySuffix, 64)
-}
-
-func FormatPKCS1PublicKey(raw string) []byte {
-	return internal.FormatKey(raw, kPKCS1PublicKeyPrefix, kPKCS1PublicKeySuffix, 64)
-}
-
-func FormatPKCS8PrivateKey(raw string) []byte {
-	return internal.FormatKey(raw, kPKCS8PrivateKeyPrefix, kPKCS8PrivateKeySuffix, 64)
-}
-
-func FormatPKIXPublicKey(raw string) []byte {
-	return internal.FormatKey(raw, kPKIXPublicKeyPrefix, kPKIXPublicKeySuffix, 64)
-}
+var kPrefix = []byte("-----BEGIN")
 
 type PrivateKeyDecoder []byte
 
@@ -50,21 +22,37 @@ func DecodePrivateKey(data []byte) PrivateKeyDecoder {
 	return data
 }
 
-func (this PrivateKeyDecoder) PKCS1() PKCS1PrivateKey {
-	block, _ := pem.Decode(this)
-	if block == nil {
-		return PKCS1PrivateKey{key: nil, err: errors.New("failed to load private key")}
+func (this PrivateKeyDecoder) decode() ([]byte, error) {
+	if bytes.HasPrefix(this, kPrefix) {
+		block, _ := pem.Decode(this)
+		if block == nil {
+			return nil, errors.New("invalid private key")
+		}
+		return block.Bytes, nil
 	}
-	var key, err = x509.ParsePKCS1PrivateKey(block.Bytes)
+
+	var nData, err = base64decode(this)
+	if err != nil {
+		return nil, err
+	}
+	return nData, nil
+}
+
+func (this PrivateKeyDecoder) PKCS1() PKCS1PrivateKey {
+	data, err := this.decode()
+	if err != nil {
+		return PKCS1PrivateKey{key: nil, err: err}
+	}
+	key, err := x509.ParsePKCS1PrivateKey(data)
 	return PKCS1PrivateKey{key: key, err: err}
 }
 
 func (this PrivateKeyDecoder) PKCS8() PKCS8PrivateKey {
-	block, _ := pem.Decode(this)
-	if block == nil {
-		return PKCS8PrivateKey{key: nil, err: errors.New("failed to load private key")}
+	data, err := this.decode()
+	if err != nil {
+		return PKCS8PrivateKey{key: nil, err: err}
 	}
-	var key, err = x509.ParsePKCS8PrivateKey(block.Bytes)
+	key, err := x509.ParsePKCS8PrivateKey(data)
 	return PKCS8PrivateKey{key: key, err: err}
 }
 
@@ -95,7 +83,7 @@ func (this PKCS8PrivateKey) RSAPrivateKey() (*rsa.PrivateKey, error) {
 	}
 	privateKey, ok := this.key.(*rsa.PrivateKey)
 	if !ok {
-		return nil, errors.New("failed to load private key")
+		return nil, errors.New("invalid RSA private key")
 	}
 	return privateKey, nil
 }
@@ -106,7 +94,7 @@ func (this PKCS8PrivateKey) ECDSAPrivateKey() (*ecdsa.PrivateKey, error) {
 	}
 	privateKey, ok := this.key.(*ecdsa.PrivateKey)
 	if !ok {
-		return nil, errors.New("failed to load private key")
+		return nil, errors.New("invalid ECDSA private key")
 	}
 	return privateKey, nil
 }
@@ -117,7 +105,7 @@ func (this PKCS8PrivateKey) ED25519PrivateKey() (*ed25519.PrivateKey, error) {
 	}
 	privateKey, ok := this.key.(*ed25519.PrivateKey)
 	if !ok {
-		return nil, errors.New("failed to load private key")
+		return nil, errors.New("invalid ED25519 private key")
 	}
 	return privateKey, nil
 }
@@ -128,7 +116,7 @@ func (this PKCS8PrivateKey) ECDHPrivateKey() (*ecdh.PrivateKey, error) {
 	}
 	privateKey, ok := this.key.(*ecdh.PrivateKey)
 	if !ok {
-		return nil, errors.New("failed to load private key")
+		return nil, errors.New("invalid ECDH private key")
 	}
 	return privateKey, nil
 }
@@ -139,21 +127,37 @@ func DecodePublicKey(data []byte) PublicKeyDecoder {
 	return data
 }
 
-func (this PublicKeyDecoder) PKCS1() PKCS1PublicKey {
-	block, _ := pem.Decode(this)
-	if block == nil {
-		return PKCS1PublicKey{key: nil, err: errors.New("failed to load public key")}
+func (this PublicKeyDecoder) decode() ([]byte, error) {
+	if bytes.HasPrefix(this, kPrefix) {
+		block, _ := pem.Decode(this)
+		if block == nil {
+			return nil, errors.New("invalid public key")
+		}
+		return block.Bytes, nil
 	}
-	var key, err = x509.ParsePKCS1PublicKey(block.Bytes)
+
+	var nData, err = base64decode(this)
+	if err != nil {
+		return nil, err
+	}
+	return nData, nil
+}
+
+func (this PublicKeyDecoder) PKCS1() PKCS1PublicKey {
+	data, err := this.decode()
+	if err != nil {
+		return PKCS1PublicKey{key: nil, err: err}
+	}
+	key, err := x509.ParsePKCS1PublicKey(data)
 	return PKCS1PublicKey{key: key, err: err}
 }
 
 func (this PublicKeyDecoder) PKIX() PKIXPublicKey {
-	block, _ := pem.Decode(this)
-	if block == nil {
-		return PKIXPublicKey{key: nil, err: errors.New("failed to load public key")}
+	data, err := this.decode()
+	if err != nil {
+		return PKIXPublicKey{key: nil, err: err}
 	}
-	var key, err = x509.ParsePKIXPublicKey(block.Bytes)
+	key, err := x509.ParsePKIXPublicKey(data)
 	return PKIXPublicKey{key: key, err: err}
 }
 
@@ -181,7 +185,7 @@ func (this PKIXPublicKey) RSAPublicKey() (*rsa.PublicKey, error) {
 	}
 	publicKey, ok := this.key.(*rsa.PublicKey)
 	if !ok {
-		return nil, errors.New("failed to load public key")
+		return nil, errors.New("invalid RSA public key")
 	}
 	return publicKey, nil
 }
@@ -192,7 +196,7 @@ func (this PKIXPublicKey) ECDSAPublicKey() (*ecdsa.PublicKey, error) {
 	}
 	publicKey, ok := this.key.(*ecdsa.PublicKey)
 	if !ok {
-		return nil, errors.New("failed to load public key")
+		return nil, errors.New("invalid ECDSA public key")
 	}
 	return publicKey, nil
 }
@@ -203,7 +207,7 @@ func (this PKIXPublicKey) ED25519PublicKey() (*ed25519.PublicKey, error) {
 	}
 	publicKey, ok := this.key.(*ed25519.PublicKey)
 	if !ok {
-		return nil, errors.New("failed to load public key")
+		return nil, errors.New("invalid ED25519 public key")
 	}
 	return publicKey, nil
 }
@@ -214,7 +218,7 @@ func (this PKIXPublicKey) ECDHPublicKey() (*ecdh.PublicKey, error) {
 	}
 	publicKey, ok := this.key.(*ecdh.PublicKey)
 	if !ok {
-		return nil, errors.New("failed to load public key")
+		return nil, errors.New("invalid ECDH public key")
 	}
 	return publicKey, nil
 }
@@ -255,4 +259,10 @@ func (this PublicKeyEncoder) PKIX() ([]byte, error) {
 		return nil, err
 	}
 	return buffer.Bytes(), nil
+}
+
+func base64decode(data []byte) ([]byte, error) {
+	var dBuf = make([]byte, base64.StdEncoding.DecodedLen(len(data)))
+	n, err := base64.StdEncoding.Decode(dBuf, data)
+	return dBuf[:n], err
 }
