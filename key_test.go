@@ -27,6 +27,18 @@ pcovfv5uiQ0VRLImWeiSXKK2aTOBGn5eKbevRTxN07k=
 	}
 }
 
+func TestDecodeTestDecodeRSAPKCS1PublicKey(t *testing.T) {
+	var key = `-----BEGIN RSA PUBLIC KEY-----
+MIGJAoGBALNdX+ylpf3546Mzl/XZbp4NO2zNT1/2uClcbgRDDNkjdYzn4V770Gfo
+1BAgt8XWjdn7cETMcwxxjDGtDD+2irajok9yFtQrt4CspzqmX8ZXe4h59l0qdzPl
+tm8IUyCImunLvmVgqEmCi1AUR9B36Sza3SC0LTTu46OZj1AMHYRVAgMBAAE=
+-----END RSA PUBLIC KEY-----`
+	var _, err = ncrypto.DecodePublicKey([]byte(key)).PKCS1().RSAPublicKey()
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
 func TestDecodeRSAPKCS8PrivateKey(t *testing.T) {
 	var key = `-----BEGIN PRIVATE KEY-----
 MIICdQIBADANBgkqhkiG9w0BAQEFAASCAl8wggJbAgEAAoGBAMiVMWPJXP2B9fWK
@@ -46,6 +58,19 @@ jN0pFHTUdTCS
 -----END PRIVATE KEY-----`
 
 	var _, err = ncrypto.DecodePrivateKey([]byte(key)).PKCS8().RSAPrivateKey()
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestDecodeTestDecodeRSAPKIXPublicKey(t *testing.T) {
+	var key = `-----BEGIN PUBLIC KEY-----
+MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC3RjqAXeZaJxq/cVw9j/IoBgMw
+3SLwg+2kWi/xbsf9nqDmFsOdfrMAdbXrefFKHslF9zbheHBeKvE9eIDKPrgS+FvB
+R9wE6xq4D/BnG7Vz7F2XgDuLx6/aaItd3aVAygdDBAhLJWv6Pm6OgXp170x6VFs1
+zc8seHTJAi8Qp1gyLQIDAQAB
+-----END PUBLIC KEY-----`
+	var _, err = ncrypto.DecodePublicKey([]byte(key)).PKIX().RSAPublicKey()
 	if err != nil {
 		t.Fatal(err)
 	}
