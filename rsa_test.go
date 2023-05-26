@@ -46,12 +46,12 @@ zt/oaEPoubJ+pmmb1zUCQDLHe9PJNVdx/Z++ImB+mT78yIn3aSUMyHYTe1KVwWop
 5nRL12LwFytOAMwC8LEg3VDHDpxd9+O+pfd+Coum1OM=
 -----END RSA PRIVATE KEY-----`)
 
-	publicKey, err := ncrypto.DecodeRSAPKCS1PublicKey(pub)
+	publicKey, err := ncrypto.DecodePublicKey(pub).PKCS1().RSAPublicKey()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	privateKey, err := ncrypto.DecodeRSAPKCS1PrivateKey(pri)
+	privateKey, err := ncrypto.DecodePrivateKey(pri).PKCS1().RSAPrivateKey()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -94,12 +94,12 @@ w8O7v/wsAIadDyGYewgy7DT2wBtWCc4xEGwV87UIAKf7MikwKSsTKT3SQoMZnojC
 cW0QvhodYyxnlSs=
 -----END PRIVATE KEY-----`)
 
-	publicKey, err := ncrypto.DecodeRSAPKIXPublicKey(pub)
+	publicKey, err := ncrypto.DecodePublicKey(pub).PKIX().RSAPublicKey()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	privateKey, err := ncrypto.DecodeRSAPKCS8PrivateKey(pri)
+	privateKey, err := ncrypto.DecodePrivateKey(pri).PKCS8().RSAPrivateKey()
 	if err != nil {
 		t.Fatal(err)
 	}
