@@ -70,3 +70,11 @@ func RSAVerifyPKCS1v15(ciphertext, signature []byte, key *rsa.PublicKey, hash cr
 	var hashed = h.Sum(nil)
 	return rsa.VerifyPKCS1v15(key, hash, hashed, signature)
 }
+
+func NewRSAKeyPair(bits int) (*rsa.PrivateKey, *rsa.PublicKey, error) {
+	private, err := rsa.GenerateKey(rand.Reader, bits)
+	if err != nil {
+		return nil, nil, err
+	}
+	return private, &private.PublicKey, err
+}

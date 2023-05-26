@@ -2,16 +2,7 @@ package internal
 
 import (
 	"bytes"
-	"crypto/rsa"
-	"crypto/x509"
-	"encoding/pem"
-	"errors"
 	"strings"
-)
-
-const (
-	kPublicKeyPrefix = "-----BEGIN PUBLIC KEY-----"
-	kPublicKeySuffix = "-----END PUBLIC KEY-----"
 )
 
 func FormatKey(raw, prefix, suffix string, lineCount int) []byte {
@@ -45,40 +36,4 @@ func FormatKey(raw, prefix, suffix string, lineCount int) []byte {
 	}
 	buf.WriteString(suffix)
 	return buf.Bytes()
-}
-
-func FormatPublicKey(raw string) []byte {
-	return FormatKey(raw, kPublicKeyPrefix, kPublicKeySuffix, 64)
-}
-
-func EncodePublicKey(publicKey *rsa.PublicKey) ([]byte, error) {
-	publicBytes, err := x509.MarshalPKIXPublicKey(publicKey)
-	if err != nil {
-		return nil, err
-	}
-	var block = &pem.Block{Type: "PUBLIC KEY", Bytes: publicBytes}
-
-	var buffer bytes.Buffer
-	if err = pem.Encode(&buffer, block); err != nil {
-		return nil, err
-	}
-	return buffer.Bytes(), nil
-}
-
-func DecodePublicKey(data []byte) (*rsa.PublicKey, error) {
-	block, _ := pem.Decode(data)
-	if block == nil {
-		return nil, errors.New("failed to load public key")
-	}
-
-	pubInterface, err := x509.ParsePKIXPublicKey(block.Bytes)
-	if err != nil {
-		return nil, err
-	}
-
-	publicKey, ok := pubInterface.(*rsa.PublicKey)
-	if !ok {
-		return nil, errors.New("failed to load public key")
-	}
-	return publicKey, nil
 }
