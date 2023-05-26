@@ -16,7 +16,7 @@ func TestPfx(t *testing.T) {
 	for commonName, base64P12 := range testdata {
 		p12, _ := base64.StdEncoding.DecodeString(base64P12)
 
-		priv, cert, err := Decode(p12, "")
+		priv, cert, _, err := Decode(p12, "")
 		if err != nil {
 			t.Fatal(err)
 		}
