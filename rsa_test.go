@@ -2,8 +2,8 @@ package ncrypto_test
 
 import (
 	"encoding/hex"
-	"fmt"
 	"github.com/smartwalle/ncrypto"
+	"github.com/smartwalle/ncrypto/pkcs1"
 	"testing"
 )
 
@@ -31,9 +31,25 @@ Ladav1OmihToW74T/vyTYQJAAf+PKLRD+O2CuwcZJG0taEqL0RR+kXMEd0wLp4EN
 pFwKUHMh+rm4/Asgy126+rS6Hr0QuNuoJuQbAr3Q28h7PQ==
 -----END RSA PRIVATE KEY-----`)
 
-	var c, _ = ncrypto.RSAEncrypt([]byte("Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state."), pub)
-	fmt.Println(hex.EncodeToString(c))
+	publicKey, err := ncrypto.DecodePublicKey(pub)
+	if err != nil {
+		t.Fatal(err)
+	}
 
-	var p, _ = ncrypto.RSADecryptWithPKCS1(c, pri)
-	fmt.Println(string(p))
+	privateKey, err := pkcs1.DecodePrivateKey(pri)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	ciphertext, err := ncrypto.RSAEncrypt([]byte("Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state."), publicKey)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(hex.EncodeToString(ciphertext))
+
+	plaintext, err := ncrypto.RSADecrypt(ciphertext, privateKey)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(string(plaintext))
 }
