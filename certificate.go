@@ -4,6 +4,7 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"errors"
+	"github.com/smartwalle/ncrypto/internal"
 )
 
 const (
@@ -16,11 +17,11 @@ var (
 )
 
 func FormatCertificate(raw string) []byte {
-	return formatKey(raw, kCertificatePrefix, kCertificateSuffix, 76)
+	return internal.FormatKey(raw, kCertificatePrefix, kCertificateSuffix, 76)
 }
 
-func ParseCertificate(b []byte) (*x509.Certificate, error) {
-	block, _ := pem.Decode(b)
+func DecodeCertificate(data []byte) (*x509.Certificate, error) {
+	block, _ := pem.Decode(data)
 	if block == nil {
 		return nil, ErrFailedToLoadCertificate
 	}
