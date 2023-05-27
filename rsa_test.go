@@ -7,7 +7,7 @@ import (
 )
 
 func TestNewRSAKeyPair(t *testing.T) {
-	var private, public, err = ncrypto.NewRSAKeyPair(1024)
+	var private, public, err = ncrypto.GenerateRSAKeyPair(1024)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestDecodeRSAPrivateKey_PKCS1(t *testing.T) {
+func TestDecodePrivateKey_RSA_PKCS1(t *testing.T) {
 	var testTbl = []struct{ key string }{
 		{
 			key: `-----BEGIN RSA PRIVATE KEY-----
@@ -52,7 +52,7 @@ pcovfv5uiQ0VRLImWeiSXKK2aTOBGn5eKbevRTxN07k=`,
 	}
 }
 
-func TestDecodeRSAPrivateKey_PKCS8(t *testing.T) {
+func TestDecodePrivateKey_RSA_PKCS8(t *testing.T) {
 	var testTbl = []struct{ key string }{
 		{
 			key: `-----BEGIN PRIVATE KEY-----
@@ -101,7 +101,7 @@ jN0pFHTUdTCS`,
 	}
 }
 
-func TestDecodeRSAPublicKey_PKCS1(t *testing.T) {
+func TestDecodePublicKey_RSA_PKCS1(t *testing.T) {
 	var testTbl = []struct{ key string }{
 		{
 			key: `-----BEGIN RSA PUBLIC KEY-----
@@ -129,7 +129,7 @@ tm8IUyCImunLvmVgqEmCi1AUR9B36Sza3SC0LTTu46OZj1AMHYRVAgMBAAE=`,
 
 }
 
-func TestDecodeRSAPublicKey_PKIX(t *testing.T) {
+func TestDecodePublicKey_RSA_PKIX(t *testing.T) {
 	var testTbl = []struct{ key string }{
 		{
 			key: `-----BEGIN PUBLIC KEY-----
@@ -155,5 +155,33 @@ XnwtFEeeESPB4fZqHQIDAQAB`,
 		if err != nil {
 			t.Fatal(err)
 		}
+	}
+}
+
+func TestEncodePrivateKey_RSA_PKCS1(t *testing.T) {
+	var p1, _, _ = ncrypto.GenerateRSAKeyPair(1024)
+	if _, err := ncrypto.EncodePrivateKey(p1).PKCS1(); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestEncodePrivateKey_RSA_PKCS8(t *testing.T) {
+	var p1, _, _ = ncrypto.GenerateRSAKeyPair(1024)
+	if _, err := ncrypto.EncodePrivateKey(p1).PKCS8(); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestEncodePublicKey_RSA_PKCS1(t *testing.T) {
+	var _, p1, _ = ncrypto.GenerateRSAKeyPair(1024)
+	if _, err := ncrypto.EncodePublicKey(p1).PKCS1(); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestEncodePublicKey_RSA_PKIX(t *testing.T) {
+	var _, p1, _ = ncrypto.GenerateRSAKeyPair(1024)
+	if _, err := ncrypto.EncodePublicKey(p1).PKIX(); err != nil {
+		t.Fatal(err)
 	}
 }
