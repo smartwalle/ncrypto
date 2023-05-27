@@ -223,6 +223,44 @@ func (this PKIXPublicKey) ECDHPublicKey() (*ecdh.PublicKey, error) {
 	return publicKey, nil
 }
 
+type PrivateKeyEncoder struct {
+	key any
+}
+
+func EncodePrivateKey(key crypto.PrivateKey) PrivateKeyEncoder {
+	return PrivateKeyEncoder{key: key}
+}
+
+func (this PrivateKeyEncoder) PKCS1() ([]byte, error) {
+	switch pri := this.key.(type) {
+	case *rsa.PrivateKey:
+		privateBytes := x509.MarshalPKCS1PrivateKey(pri)
+		block := &pem.Block{Type: "RSA PRIVATE KEY", Bytes: privateBytes}
+
+		var buffer bytes.Buffer
+		if err := pem.Encode(&buffer, block); err != nil {
+			return nil, err
+		}
+		return buffer.Bytes(), nil
+	default:
+		return nil, fmt.Errorf("unsupported private key type: %T", pri)
+	}
+}
+
+func (this PrivateKeyEncoder) PKCS8() ([]byte, error) {
+	privateBytes, err := x509.MarshalPKCS8PrivateKey(this.key)
+	if err != nil {
+		return nil, err
+	}
+	block := &pem.Block{Type: "PRIVATE KEY", Bytes: privateBytes}
+
+	var buffer bytes.Buffer
+	if err = pem.Encode(&buffer, block); err != nil {
+		return nil, err
+	}
+	return buffer.Bytes(), nil
+}
+
 type PublicKeyEncoder struct {
 	key any
 }
