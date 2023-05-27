@@ -14,6 +14,15 @@ import (
 	"fmt"
 )
 
+type PrivateKey interface {
+	Public() crypto.PublicKey
+	Equal(crypto.PrivateKey) bool
+}
+
+type PublicKey interface {
+	Equal(crypto.PublicKey) bool
+}
+
 var kPrefix = []byte("-----BEGIN")
 
 type PrivateKeyDecoder []byte
@@ -224,10 +233,10 @@ func (this PKIXPublicKey) ECDHPublicKey() (*ecdh.PublicKey, error) {
 }
 
 type PrivateKeyEncoder struct {
-	key any
+	key PrivateKey
 }
 
-func EncodePrivateKey(key crypto.PrivateKey) PrivateKeyEncoder {
+func EncodePrivateKey(key PrivateKey) PrivateKeyEncoder {
 	return PrivateKeyEncoder{key: key}
 }
 
@@ -262,10 +271,10 @@ func (this PrivateKeyEncoder) PKCS8() ([]byte, error) {
 }
 
 type PublicKeyEncoder struct {
-	key any
+	key PublicKey
 }
 
-func EncodePublicKey(key crypto.PublicKey) PublicKeyEncoder {
+func EncodePublicKey(key PublicKey) PublicKeyEncoder {
 	return PublicKeyEncoder{key: key}
 }
 
