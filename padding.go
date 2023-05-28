@@ -50,10 +50,6 @@ func (padding) UnPad(src []byte, blockSize int) ([]byte, error) {
 	return src[:(srcLen - pSize)], nil
 }
 
-func NewPKCS5Padding() Padding {
-	return PKCS5Padding{}
-}
-
 type PKCS5Padding struct {
 	padding
 }
@@ -66,10 +62,6 @@ func (p PKCS5Padding) UnPad(src []byte, blockSize int) ([]byte, error) {
 	return p.padding.UnPad(src, blockSize)
 }
 
-func NewPKCS7Padding() Padding {
-	return PKCS7Padding{}
-}
-
 type PKCS7Padding struct {
 	padding
 }
@@ -80,10 +72,6 @@ func (p PKCS7Padding) Pad(src []byte, blockSize int) ([]byte, error) {
 
 func (p PKCS7Padding) UnPad(src []byte, blockSize int) ([]byte, error) {
 	return p.padding.UnPad(src, blockSize)
-}
-
-func NewZeroPadding() Padding {
-	return ZeroPadding{}
 }
 
 type ZeroPadding struct {
@@ -103,10 +91,6 @@ func (p ZeroPadding) UnPad(src []byte, blockSize int) ([]byte, error) {
 		func(r rune) bool {
 			return r == rune(0)
 		}), nil
-}
-
-func NewNoPadding() Padding {
-	return NoPadding{}
 }
 
 type NoPadding struct {

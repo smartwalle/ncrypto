@@ -6,37 +6,35 @@ import (
 	"crypto/rsa"
 )
 
-func packageData(data []byte, packageSize int) (r [][]byte) {
+func split(data []byte, max int) [][]byte {
 	var src = make([]byte, len(data))
 	copy(src, data)
 
-	r = make([][]byte, 0)
-	if len(src) <= packageSize {
-		return append(r, src)
+	var chunks = make([][]byte, 0, (len(src)%max)+1)
+	if len(src) <= max {
+		return append(chunks, src)
 	}
-	for len(src) > 0 {
-		var p = src[:packageSize]
-		r = append(r, p)
-		src = src[packageSize:]
-		if len(src) <= packageSize {
-			r = append(r, src)
-			break
-		}
+	for len(src) >= max {
+		chunks = append(chunks, src[:max])
+		src = src[max:]
 	}
-	return r
+	if len(src) > 0 {
+		chunks = append(chunks, src)
+	}
+	return chunks
 }
 
 // RSAEncrypt 使用公钥 key 对数据 plaintext 进行加密
 func RSAEncrypt(plaintext []byte, key *rsa.PublicKey) ([]byte, error) {
-	var pData = packageData(plaintext, key.N.BitLen()/8-11)
+	var chunks = split(plaintext, key.N.BitLen()/8-11)
 	var ciphertext = make([]byte, 0, 0)
 
-	for _, d := range pData {
-		var c, e = rsa.EncryptPKCS1v15(rand.Reader, key, d)
-		if e != nil {
-			return nil, e
+	for _, chunk := range chunks {
+		var data, err = rsa.EncryptPKCS1v15(rand.Reader, key, chunk)
+		if err != nil {
+			return nil, err
 		}
-		ciphertext = append(ciphertext, c...)
+		ciphertext = append(ciphertext, data...)
 	}
 
 	return ciphertext, nil
@@ -44,15 +42,15 @@ func RSAEncrypt(plaintext []byte, key *rsa.PublicKey) ([]byte, error) {
 
 // RSADecrypt 使用私钥 key 对数据 ciphertext 进行解密
 func RSADecrypt(ciphertext []byte, key *rsa.PrivateKey) ([]byte, error) {
-	var pData = packageData(ciphertext, key.PublicKey.N.BitLen()/8)
+	var chunks = split(ciphertext, key.PublicKey.N.BitLen()/8)
 	var plaintext = make([]byte, 0, 0)
 
-	for _, d := range pData {
-		var p, e = rsa.DecryptPKCS1v15(rand.Reader, key, d)
-		if e != nil {
-			return nil, e
+	for _, chunk := range chunks {
+		var data, err = rsa.DecryptPKCS1v15(rand.Reader, key, chunk)
+		if err != nil {
+			return nil, err
 		}
-		plaintext = append(plaintext, p...)
+		plaintext = append(plaintext, data...)
 	}
 	return plaintext, nil
 }

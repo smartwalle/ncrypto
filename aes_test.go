@@ -36,7 +36,7 @@ func TestAESCBCEncrypt(t *testing.T) {
 		},
 	}
 
-	var padding = ncrypto.NewPKCS5Padding()
+	var padding = ncrypto.PKCS5Padding{}
 
 	for _, test := range testTbl {
 		var ciphertext, err = ncrypto.AESCBCEncrypt(test.plaintext, test.key, test.iv, padding)
@@ -79,7 +79,7 @@ func TestAESCBCDecrypt(t *testing.T) {
 		},
 	}
 
-	var padding = ncrypto.NewPKCS5Padding()
+	var padding = ncrypto.PKCS5Padding{}
 
 	for _, test := range testTbl {
 		var ciphertext, _ = hex.DecodeString(test.ciphertext)
@@ -124,7 +124,7 @@ func TestAESCFBEncrypt(t *testing.T) {
 		},
 	}
 
-	var padding = ncrypto.NewPKCS5Padding()
+	var padding = ncrypto.PKCS5Padding{}
 
 	for _, test := range testTbl {
 		var ciphertext, err = ncrypto.AESCFBEncrypt(test.plaintext, test.key, test.iv, padding)
@@ -167,7 +167,7 @@ func TestAESCFBDecrypt(t *testing.T) {
 		},
 	}
 
-	var padding = ncrypto.NewPKCS5Padding()
+	var padding = ncrypto.PKCS5Padding{}
 
 	for _, test := range testTbl {
 		var ciphertext, _ = hex.DecodeString(test.ciphertext)

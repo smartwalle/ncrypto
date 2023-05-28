@@ -23,8 +23,6 @@ type PublicKey interface {
 	Equal(crypto.PublicKey) bool
 }
 
-var kPrefix = []byte("-----BEGIN")
-
 type PrivateKeyDecoder []byte
 
 func DecodePrivateKey(data []byte) PrivateKeyDecoder {
@@ -32,7 +30,11 @@ func DecodePrivateKey(data []byte) PrivateKeyDecoder {
 }
 
 func (this PrivateKeyDecoder) decode() ([]byte, error) {
-	if bytes.HasPrefix(this, kPrefix) {
+	if len(this) == 0 {
+		return nil, errors.New("invalid private key")
+	}
+
+	if this[0] == '-' {
 		block, _ := pem.Decode(this)
 		if block == nil {
 			return nil, errors.New("invalid private key")
@@ -137,7 +139,11 @@ func DecodePublicKey(data []byte) PublicKeyDecoder {
 }
 
 func (this PublicKeyDecoder) decode() ([]byte, error) {
-	if bytes.HasPrefix(this, kPrefix) {
+	if len(this) == 0 {
+		return nil, errors.New("invalid private key")
+	}
+
+	if this[0] == '-' {
 		block, _ := pem.Decode(this)
 		if block == nil {
 			return nil, errors.New("invalid public key")
