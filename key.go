@@ -50,20 +50,20 @@ func (this PrivateKeyDecoder) decode() ([]byte, error) {
 }
 
 func (this PrivateKeyDecoder) PKCS1() PKCS1PrivateKey {
-	data, err := this.decode()
+	der, err := this.decode()
 	if err != nil {
 		return PKCS1PrivateKey{key: nil, err: err}
 	}
-	key, err := x509.ParsePKCS1PrivateKey(data)
+	key, err := x509.ParsePKCS1PrivateKey(der)
 	return PKCS1PrivateKey{key: key, err: err}
 }
 
 func (this PrivateKeyDecoder) PKCS8() PKCS8PrivateKey {
-	data, err := this.decode()
+	der, err := this.decode()
 	if err != nil {
 		return PKCS8PrivateKey{key: nil, err: err}
 	}
-	key, err := x509.ParsePKCS8PrivateKey(data)
+	key, err := x509.ParsePKCS8PrivateKey(der)
 	return PKCS8PrivateKey{key: key, err: err}
 }
 
@@ -159,20 +159,20 @@ func (this PublicKeyDecoder) decode() ([]byte, error) {
 }
 
 func (this PublicKeyDecoder) PKCS1() PKCS1PublicKey {
-	data, err := this.decode()
+	der, err := this.decode()
 	if err != nil {
 		return PKCS1PublicKey{key: nil, err: err}
 	}
-	key, err := x509.ParsePKCS1PublicKey(data)
+	key, err := x509.ParsePKCS1PublicKey(der)
 	return PKCS1PublicKey{key: key, err: err}
 }
 
 func (this PublicKeyDecoder) PKIX() PKIXPublicKey {
-	data, err := this.decode()
+	der, err := this.decode()
 	if err != nil {
 		return PKIXPublicKey{key: nil, err: err}
 	}
-	key, err := x509.ParsePKIXPublicKey(data)
+	key, err := x509.ParsePKIXPublicKey(der)
 	return PKIXPublicKey{key: key, err: err}
 }
 
