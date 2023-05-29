@@ -94,7 +94,7 @@ func (this PKCS8PrivateKey) RSAPrivateKey() (*rsa.PrivateKey, error) {
 	}
 	privateKey, ok := this.key.(*rsa.PrivateKey)
 	if !ok {
-		return nil, errors.New("invalid RSA private key")
+		return nil, errors.New("key is not a valid *rsa.PrivateKey")
 	}
 	return privateKey, nil
 }
@@ -105,7 +105,7 @@ func (this PKCS8PrivateKey) ECDSAPrivateKey() (*ecdsa.PrivateKey, error) {
 	}
 	privateKey, ok := this.key.(*ecdsa.PrivateKey)
 	if !ok {
-		return nil, errors.New("invalid ECDSA private key")
+		return nil, errors.New("key is not a valid *ecdsa.PrivateKey")
 	}
 	return privateKey, nil
 }
@@ -116,7 +116,7 @@ func (this PKCS8PrivateKey) ED25519PrivateKey() (*ed25519.PrivateKey, error) {
 	}
 	privateKey, ok := this.key.(*ed25519.PrivateKey)
 	if !ok {
-		return nil, errors.New("invalid ED25519 private key")
+		return nil, errors.New("key is not a valid *ed25519.PrivateKey")
 	}
 	return privateKey, nil
 }
@@ -127,7 +127,7 @@ func (this PKCS8PrivateKey) ECDHPrivateKey() (*ecdh.PrivateKey, error) {
 	}
 	privateKey, ok := this.key.(*ecdh.PrivateKey)
 	if !ok {
-		return nil, errors.New("invalid ECDH private key")
+		return nil, errors.New("key is not a valid *ecdh.PrivateKey")
 	}
 	return privateKey, nil
 }
@@ -200,7 +200,7 @@ func (this PKIXPublicKey) RSAPublicKey() (*rsa.PublicKey, error) {
 	}
 	publicKey, ok := this.key.(*rsa.PublicKey)
 	if !ok {
-		return nil, errors.New("invalid RSA public key")
+		return nil, errors.New("key is not a valid *rsa.PublicKey")
 	}
 	return publicKey, nil
 }
@@ -211,7 +211,7 @@ func (this PKIXPublicKey) ECDSAPublicKey() (*ecdsa.PublicKey, error) {
 	}
 	publicKey, ok := this.key.(*ecdsa.PublicKey)
 	if !ok {
-		return nil, errors.New("invalid ECDSA public key")
+		return nil, errors.New("key is not a valid *ecdsa.PublicKey")
 	}
 	return publicKey, nil
 }
@@ -222,7 +222,7 @@ func (this PKIXPublicKey) ED25519PublicKey() (*ed25519.PublicKey, error) {
 	}
 	publicKey, ok := this.key.(*ed25519.PublicKey)
 	if !ok {
-		return nil, errors.New("invalid ED25519 public key")
+		return nil, errors.New("key is not a valid *ed25519.PublicKey")
 	}
 	return publicKey, nil
 }
@@ -233,7 +233,7 @@ func (this PKIXPublicKey) ECDHPublicKey() (*ecdh.PublicKey, error) {
 	}
 	publicKey, ok := this.key.(*ecdh.PublicKey)
 	if !ok {
-		return nil, errors.New("invalid ECDH public key")
+		return nil, errors.New("key is not a valid *ecdh.PublicKey")
 	}
 	return publicKey, nil
 }
