@@ -3,7 +3,6 @@ package ncrypto
 import (
 	"bytes"
 	"crypto"
-	"crypto/ecdh"
 	"crypto/ecdsa"
 	"crypto/ed25519"
 	"crypto/rsa"
@@ -121,17 +120,6 @@ func (this PKCS8PrivateKey) ED25519PrivateKey() (*ed25519.PrivateKey, error) {
 	return privateKey, nil
 }
 
-func (this PKCS8PrivateKey) ECDHPrivateKey() (*ecdh.PrivateKey, error) {
-	if this.err != nil {
-		return nil, this.err
-	}
-	privateKey, ok := this.key.(*ecdh.PrivateKey)
-	if !ok {
-		return nil, errors.New("key is not a valid *ecdh.PrivateKey")
-	}
-	return privateKey, nil
-}
-
 type PublicKeyDecoder []byte
 
 func DecodePublicKey(data []byte) PublicKeyDecoder {
@@ -223,17 +211,6 @@ func (this PKIXPublicKey) ED25519PublicKey() (*ed25519.PublicKey, error) {
 	publicKey, ok := this.key.(*ed25519.PublicKey)
 	if !ok {
 		return nil, errors.New("key is not a valid *ed25519.PublicKey")
-	}
-	return publicKey, nil
-}
-
-func (this PKIXPublicKey) ECDHPublicKey() (*ecdh.PublicKey, error) {
-	if this.err != nil {
-		return nil, this.err
-	}
-	publicKey, ok := this.key.(*ecdh.PublicKey)
-	if !ok {
-		return nil, errors.New("key is not a valid *ecdh.PublicKey")
 	}
 	return publicKey, nil
 }
