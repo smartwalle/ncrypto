@@ -40,12 +40,7 @@ func (this PrivateKeyDecoder) decode() ([]byte, error) {
 		}
 		return block.Bytes, nil
 	}
-
-	var data, err = base64decode(this)
-	if err != nil {
-		return nil, err
-	}
-	return data, nil
+	return base64decode(this)
 }
 
 func (this PrivateKeyDecoder) PKCS1() PKCS1PrivateKey {
@@ -138,12 +133,7 @@ func (this PublicKeyDecoder) decode() ([]byte, error) {
 		}
 		return block.Bytes, nil
 	}
-
-	var data, err = base64decode(this)
-	if err != nil {
-		return nil, err
-	}
-	return data, nil
+	return base64decode(this)
 }
 
 func (this PublicKeyDecoder) PKCS1() PKCS1PublicKey {
