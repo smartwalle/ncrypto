@@ -146,6 +146,51 @@ func AESCFBDecrypt(ciphertext, key, iv []byte, padding Padding) ([]byte, error) 
 	return padding.UnPad(dst, block.BlockSize())
 }
 
+func AESECBEncrypt(plaintext, key []byte, padding Padding) ([]byte, error) {
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+
+	src, err := padding.Pad(plaintext, block.BlockSize())
+	if err != nil {
+		return nil, err
+	}
+
+	var dst = make([]byte, len(src))
+
+	var blockSize = block.BlockSize()
+	var start = 0
+	var end = blockSize
+
+	for start < len(src) {
+		block.Encrypt(dst[start:end], src[start:end])
+		start = start + blockSize
+		end = end + blockSize
+	}
+	return dst, nil
+}
+
+func AESECBDecrypt(ciphertext, key []byte, padding Padding) ([]byte, error) {
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+
+	var dst = make([]byte, len(ciphertext))
+	var blockSize = block.BlockSize()
+	var start = 0
+	var end = blockSize
+
+	for start < len(ciphertext) {
+		block.Decrypt(dst[start:end], ciphertext[start:end])
+		start = start + blockSize
+		end = end + blockSize
+	}
+
+	return padding.UnPad(dst, block.BlockSize())
+}
+
 func AESGCMEncrypt(plaintext, key, additional []byte) ([]byte, error) {
 	var block, err = aes.NewCipher(key)
 	if err != nil {
