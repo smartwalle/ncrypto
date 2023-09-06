@@ -18,22 +18,17 @@ func DecodeCertificate(data []byte) (*x509.Certificate, error) {
 	return cert, nil
 }
 
-func decodeCertificate(src []byte) ([]byte, error) {
-	if len(src) == 0 {
+func decodeCertificate(data []byte) ([]byte, error) {
+	if len(data) == 0 {
 		return nil, errors.New("invalid certificate")
 	}
 
-	if src[0] == '-' {
-		block, _ := pem.Decode(src)
+	if data[0] == '-' {
+		block, _ := pem.Decode(data)
 		if block == nil {
 			return nil, errors.New("invalid certificate")
 		}
 		return block.Bytes, nil
 	}
-
-	var data, err = base64decode(src)
-	if err != nil {
-		return nil, err
-	}
-	return data, nil
+	return base64decode(data)
 }
