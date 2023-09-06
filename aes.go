@@ -151,15 +151,14 @@ func AESECBEncrypt(plaintext, key []byte, padding Padding) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	var blockSize = block.BlockSize()
 
-	src, err := padding.Pad(plaintext, block.BlockSize())
+	src, err := padding.Pad(plaintext, blockSize)
 	if err != nil {
 		return nil, err
 	}
 
 	var dst = make([]byte, len(src))
-
-	var blockSize = block.BlockSize()
 	var start = 0
 	var end = blockSize
 
@@ -188,7 +187,7 @@ func AESECBDecrypt(ciphertext, key []byte, padding Padding) ([]byte, error) {
 		end = end + blockSize
 	}
 
-	return padding.UnPad(dst, block.BlockSize())
+	return padding.UnPad(dst, blockSize)
 }
 
 func AESGCMEncrypt(plaintext, key, additional []byte) ([]byte, error) {
