@@ -7,22 +7,22 @@ import (
 	"errors"
 )
 
-func (this PKIXPublicKey) ECDHPublicKey() (*ecdh.PublicKey, error) {
-	if this.err != nil {
-		return nil, this.err
+func (p PKIXPublicKey) ECDHPublicKey() (*ecdh.PublicKey, error) {
+	if p.err != nil {
+		return nil, p.err
 	}
-	publicKey, ok := this.key.(*ecdh.PublicKey)
+	publicKey, ok := p.key.(*ecdh.PublicKey)
 	if !ok {
 		return nil, errors.New("key is not a valid *ecdh.PublicKey")
 	}
 	return publicKey, nil
 }
 
-func (this PKCS8PrivateKey) ECDHPrivateKey() (*ecdh.PrivateKey, error) {
-	if this.err != nil {
-		return nil, this.err
+func (p PKCS8PrivateKey) ECDHPrivateKey() (*ecdh.PrivateKey, error) {
+	if p.err != nil {
+		return nil, p.err
 	}
-	privateKey, ok := this.key.(*ecdh.PrivateKey)
+	privateKey, ok := p.key.(*ecdh.PrivateKey)
 	if !ok {
 		return nil, errors.New("key is not a valid *ecdh.PrivateKey")
 	}
