@@ -109,7 +109,7 @@ func AESCBCDecrypt(ciphertext, key, iv []byte, padding Padding) ([]byte, error) 
 
 	var mode = cipher.NewCBCDecrypter(block, iv)
 	mode.CryptBlocks(dst, ciphertext)
-	return padding.UnPad(dst, block.BlockSize())
+	return padding.Unpad(dst, block.BlockSize())
 }
 
 func AESCFBEncrypt(plaintext, key, iv []byte, padding Padding) ([]byte, error) {
@@ -143,7 +143,7 @@ func AESCFBDecrypt(ciphertext, key, iv []byte, padding Padding) ([]byte, error) 
 
 	var mode = cipher.NewCFBDecrypter(block, iv)
 	mode.XORKeyStream(dst, ciphertext)
-	return padding.UnPad(dst, block.BlockSize())
+	return padding.Unpad(dst, block.BlockSize())
 }
 
 func AESECBEncrypt(plaintext, key []byte, padding Padding) ([]byte, error) {
@@ -187,7 +187,7 @@ func AESECBDecrypt(ciphertext, key []byte, padding Padding) ([]byte, error) {
 		end = end + blockSize
 	}
 
-	return padding.UnPad(dst, blockSize)
+	return padding.Unpad(dst, blockSize)
 }
 
 func AESGCMEncrypt(plaintext, key, additional []byte) ([]byte, error) {
