@@ -27,7 +27,7 @@ func split(data []byte, max int) [][]byte {
 // RSAEncrypt 使用公钥 key 对数据 plaintext 进行加密
 func RSAEncrypt(plaintext []byte, key *rsa.PublicKey) ([]byte, error) {
 	var chunks = split(plaintext, key.N.BitLen()/8-11)
-	var ciphertext = make([]byte, 0, 0)
+	var ciphertext = make([]byte, 0, len(plaintext))
 
 	for _, chunk := range chunks {
 		var data, err = rsa.EncryptPKCS1v15(rand.Reader, key, chunk)
@@ -43,7 +43,7 @@ func RSAEncrypt(plaintext []byte, key *rsa.PublicKey) ([]byte, error) {
 // RSADecrypt 使用私钥 key 对数据 ciphertext 进行解密
 func RSADecrypt(ciphertext []byte, key *rsa.PrivateKey) ([]byte, error) {
 	var chunks = split(ciphertext, key.PublicKey.N.BitLen()/8)
-	var plaintext = make([]byte, 0, 0)
+	var plaintext = make([]byte, 0, len(ciphertext))
 
 	for _, chunk := range chunks {
 		var data, err = rsa.DecryptPKCS1v15(rand.Reader, key, chunk)

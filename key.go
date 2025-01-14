@@ -28,23 +28,23 @@ func DecodePrivateKey(data []byte) PrivateKeyDecoder {
 	return data
 }
 
-func (this PrivateKeyDecoder) decode() ([]byte, error) {
-	if len(this) == 0 {
+func (p PrivateKeyDecoder) decode() ([]byte, error) {
+	if len(p) == 0 {
 		return nil, errors.New("invalid private key")
 	}
 
-	if this[0] == '-' {
-		block, _ := pem.Decode(this)
+	if p[0] == '-' {
+		block, _ := pem.Decode(p)
 		if block == nil {
 			return nil, errors.New("invalid private key")
 		}
 		return block.Bytes, nil
 	}
-	return base64decode(this)
+	return base64decode(p)
 }
 
-func (this PrivateKeyDecoder) PKCS1() PKCS1PrivateKey {
-	der, err := this.decode()
+func (p PrivateKeyDecoder) PKCS1() PKCS1PrivateKey {
+	der, err := p.decode()
 	if err != nil {
 		return PKCS1PrivateKey{key: nil, err: err}
 	}
@@ -52,8 +52,8 @@ func (this PrivateKeyDecoder) PKCS1() PKCS1PrivateKey {
 	return PKCS1PrivateKey{key: key, err: err}
 }
 
-func (this PrivateKeyDecoder) PKCS8() PKCS8PrivateKey {
-	der, err := this.decode()
+func (p PrivateKeyDecoder) PKCS8() PKCS8PrivateKey {
+	der, err := p.decode()
 	if err != nil {
 		return PKCS8PrivateKey{key: nil, err: err}
 	}
@@ -66,11 +66,11 @@ type PKCS1PrivateKey struct {
 	err error
 }
 
-func (this PKCS1PrivateKey) RSAPrivateKey() (*rsa.PrivateKey, error) {
-	if this.err != nil {
-		return nil, this.err
+func (p PKCS1PrivateKey) RSAPrivateKey() (*rsa.PrivateKey, error) {
+	if p.err != nil {
+		return nil, p.err
 	}
-	return this.key, nil
+	return p.key, nil
 }
 
 type PKCS8PrivateKey struct {
@@ -78,37 +78,37 @@ type PKCS8PrivateKey struct {
 	err error
 }
 
-func (this PKCS8PrivateKey) PrivateKey() (any, error) {
-	return this.key, this.err
+func (p PKCS8PrivateKey) PrivateKey() (any, error) {
+	return p.key, p.err
 }
 
-func (this PKCS8PrivateKey) RSAPrivateKey() (*rsa.PrivateKey, error) {
-	if this.err != nil {
-		return nil, this.err
+func (p PKCS8PrivateKey) RSAPrivateKey() (*rsa.PrivateKey, error) {
+	if p.err != nil {
+		return nil, p.err
 	}
-	privateKey, ok := this.key.(*rsa.PrivateKey)
+	privateKey, ok := p.key.(*rsa.PrivateKey)
 	if !ok {
 		return nil, errors.New("key is not a valid *rsa.PrivateKey")
 	}
 	return privateKey, nil
 }
 
-func (this PKCS8PrivateKey) ECDSAPrivateKey() (*ecdsa.PrivateKey, error) {
-	if this.err != nil {
-		return nil, this.err
+func (p PKCS8PrivateKey) ECDSAPrivateKey() (*ecdsa.PrivateKey, error) {
+	if p.err != nil {
+		return nil, p.err
 	}
-	privateKey, ok := this.key.(*ecdsa.PrivateKey)
+	privateKey, ok := p.key.(*ecdsa.PrivateKey)
 	if !ok {
 		return nil, errors.New("key is not a valid *ecdsa.PrivateKey")
 	}
 	return privateKey, nil
 }
 
-func (this PKCS8PrivateKey) ED25519PrivateKey() (*ed25519.PrivateKey, error) {
-	if this.err != nil {
-		return nil, this.err
+func (p PKCS8PrivateKey) ED25519PrivateKey() (*ed25519.PrivateKey, error) {
+	if p.err != nil {
+		return nil, p.err
 	}
-	privateKey, ok := this.key.(*ed25519.PrivateKey)
+	privateKey, ok := p.key.(*ed25519.PrivateKey)
 	if !ok {
 		return nil, errors.New("key is not a valid *ed25519.PrivateKey")
 	}
@@ -121,23 +121,23 @@ func DecodePublicKey(data []byte) PublicKeyDecoder {
 	return data
 }
 
-func (this PublicKeyDecoder) decode() ([]byte, error) {
-	if len(this) == 0 {
+func (p PublicKeyDecoder) decode() ([]byte, error) {
+	if len(p) == 0 {
 		return nil, errors.New("invalid private key")
 	}
 
-	if this[0] == '-' {
-		block, _ := pem.Decode(this)
+	if p[0] == '-' {
+		block, _ := pem.Decode(p)
 		if block == nil {
 			return nil, errors.New("invalid public key")
 		}
 		return block.Bytes, nil
 	}
-	return base64decode(this)
+	return base64decode(p)
 }
 
-func (this PublicKeyDecoder) PKCS1() PKCS1PublicKey {
-	der, err := this.decode()
+func (p PublicKeyDecoder) PKCS1() PKCS1PublicKey {
+	der, err := p.decode()
 	if err != nil {
 		return PKCS1PublicKey{key: nil, err: err}
 	}
@@ -145,8 +145,8 @@ func (this PublicKeyDecoder) PKCS1() PKCS1PublicKey {
 	return PKCS1PublicKey{key: key, err: err}
 }
 
-func (this PublicKeyDecoder) PKIX() PKIXPublicKey {
-	der, err := this.decode()
+func (p PublicKeyDecoder) PKIX() PKIXPublicKey {
+	der, err := p.decode()
 	if err != nil {
 		return PKIXPublicKey{key: nil, err: err}
 	}
@@ -159,8 +159,8 @@ type PKCS1PublicKey struct {
 	err error
 }
 
-func (this PKCS1PublicKey) RSAPublicKey() (*rsa.PublicKey, error) {
-	return this.key, this.err
+func (p PKCS1PublicKey) RSAPublicKey() (*rsa.PublicKey, error) {
+	return p.key, p.err
 }
 
 type PKIXPublicKey struct {
@@ -168,37 +168,37 @@ type PKIXPublicKey struct {
 	err error
 }
 
-func (this PKIXPublicKey) PublicKey() (any, error) {
-	return this.key, this.err
+func (p PKIXPublicKey) PublicKey() (any, error) {
+	return p.key, p.err
 }
 
-func (this PKIXPublicKey) RSAPublicKey() (*rsa.PublicKey, error) {
-	if this.err != nil {
-		return nil, this.err
+func (p PKIXPublicKey) RSAPublicKey() (*rsa.PublicKey, error) {
+	if p.err != nil {
+		return nil, p.err
 	}
-	publicKey, ok := this.key.(*rsa.PublicKey)
+	publicKey, ok := p.key.(*rsa.PublicKey)
 	if !ok {
 		return nil, errors.New("key is not a valid *rsa.PublicKey")
 	}
 	return publicKey, nil
 }
 
-func (this PKIXPublicKey) ECDSAPublicKey() (*ecdsa.PublicKey, error) {
-	if this.err != nil {
-		return nil, this.err
+func (p PKIXPublicKey) ECDSAPublicKey() (*ecdsa.PublicKey, error) {
+	if p.err != nil {
+		return nil, p.err
 	}
-	publicKey, ok := this.key.(*ecdsa.PublicKey)
+	publicKey, ok := p.key.(*ecdsa.PublicKey)
 	if !ok {
 		return nil, errors.New("key is not a valid *ecdsa.PublicKey")
 	}
 	return publicKey, nil
 }
 
-func (this PKIXPublicKey) ED25519PublicKey() (*ed25519.PublicKey, error) {
-	if this.err != nil {
-		return nil, this.err
+func (p PKIXPublicKey) ED25519PublicKey() (*ed25519.PublicKey, error) {
+	if p.err != nil {
+		return nil, p.err
 	}
-	publicKey, ok := this.key.(*ed25519.PublicKey)
+	publicKey, ok := p.key.(*ed25519.PublicKey)
 	if !ok {
 		return nil, errors.New("key is not a valid *ed25519.PublicKey")
 	}
@@ -213,8 +213,8 @@ func EncodePrivateKey(key PrivateKey) PrivateKeyEncoder {
 	return PrivateKeyEncoder{key: key}
 }
 
-func (this PrivateKeyEncoder) PKCS1() ([]byte, error) {
-	switch pri := this.key.(type) {
+func (p PrivateKeyEncoder) PKCS1() ([]byte, error) {
+	switch pri := p.key.(type) {
 	case *rsa.PrivateKey:
 		privateBytes := x509.MarshalPKCS1PrivateKey(pri)
 		block := &pem.Block{Type: "RSA PRIVATE KEY", Bytes: privateBytes}
@@ -229,8 +229,8 @@ func (this PrivateKeyEncoder) PKCS1() ([]byte, error) {
 	}
 }
 
-func (this PrivateKeyEncoder) PKCS8() ([]byte, error) {
-	privateBytes, err := x509.MarshalPKCS8PrivateKey(this.key)
+func (p PrivateKeyEncoder) PKCS8() ([]byte, error) {
+	privateBytes, err := x509.MarshalPKCS8PrivateKey(p.key)
 	if err != nil {
 		return nil, err
 	}
@@ -251,8 +251,8 @@ func EncodePublicKey(key PublicKey) PublicKeyEncoder {
 	return PublicKeyEncoder{key: key}
 }
 
-func (this PublicKeyEncoder) PKCS1() ([]byte, error) {
-	switch pub := this.key.(type) {
+func (p PublicKeyEncoder) PKCS1() ([]byte, error) {
+	switch pub := p.key.(type) {
 	case *rsa.PublicKey:
 		publicBytes := x509.MarshalPKCS1PublicKey(pub)
 		block := &pem.Block{Type: "RSA PUBLIC KEY", Bytes: publicBytes}
@@ -267,8 +267,8 @@ func (this PublicKeyEncoder) PKCS1() ([]byte, error) {
 	}
 }
 
-func (this PublicKeyEncoder) PKIX() ([]byte, error) {
-	publicBytes, err := x509.MarshalPKIXPublicKey(this.key)
+func (p PublicKeyEncoder) PKIX() ([]byte, error) {
+	publicBytes, err := x509.MarshalPKIXPublicKey(p.key)
 	if err != nil {
 		return nil, err
 	}
