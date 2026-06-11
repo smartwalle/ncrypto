@@ -12,6 +12,12 @@ import (
 	"io"
 )
 
+var (
+	ErrInvalidIVSize        = errors.New("invalid iv size")
+	ErrCiphertextNotAligned = errors.New("ciphertext is not block-aligned")
+	ErrCiphertextTooShort   = errors.New("ciphertext too short")
+)
+
 const (
 	kPKCSSaltLen      = 8
 	kPKCSDefaultIter  = 2048
@@ -44,16 +50,24 @@ func AESEncryptWithSalt(plaintext, key []byte, iter int, magic string, h func() 
 		h = md5.New
 	}
 
-	var salt, _ = RandBytes(kPKCSSaltLen)
+	salt, err := RandBytes(kPKCSSaltLen)
+	if err != nil {
+		return nil, err
+	}
 	var sKey = pbkdf2.Key(key, salt, iter, len(key), h)
 	var sIV = pbkdf2.Key(sKey, salt, iter, kEVPMaxIvLen, h)
 
-	var ciphertext, err = f(plaintext, sKey, sIV, padding)
+	ciphertext, err := f(plaintext, sKey, sIV, padding)
+	if err != nil {
+		return nil, err
+	}
 
-	ciphertext = append(salt, ciphertext...)
-	ciphertext = append([]byte(magic), ciphertext...)
+	result := make([]byte, 0, len(magic)+kPKCSSaltLen+len(ciphertext))
+	result = append(result, []byte(magic)...)
+	result = append(result, salt...)
+	result = append(result, ciphertext...)
 
-	return ciphertext, err
+	return result, nil
 }
 
 func AESDecryptWithSalt(ciphertext, key []byte, iterCount int, magic string, h func() hash.Hash, padding Padding, f func(ciphertext, key, iv []byte, padding Padding) ([]byte, error)) ([]byte, error) {
@@ -65,9 +79,9 @@ func AESDecryptWithSalt(ciphertext, key []byte, iterCount int, magic string, h f
 		h = md5.New
 	}
 
-	//if len(ciphertext) <= len(magic) + kPKCSSaltLen {
-	//	return nil, errors.New("Error")
-	//}
+	if len(ciphertext) <= len(magic)+kPKCSSaltLen {
+		return nil, ErrCiphertextTooShort
+	}
 
 	var salt = ciphertext[len(magic) : len(magic)+kPKCSSaltLen]
 	var sKey = pbkdf2.Key(key, salt, iterCount, len(key), h)
@@ -84,6 +98,9 @@ func AESCBCEncrypt(plaintext, key, iv []byte, padding Padding) ([]byte, error) {
 		return nil, err
 	}
 	var blockSize = block.BlockSize()
+	if len(iv) < blockSize {
+		return nil, ErrInvalidIVSize
+	}
 	iv = iv[:blockSize]
 
 	src, err := padding.Pad(plaintext, blockSize)
@@ -103,7 +120,14 @@ func AESCBCDecrypt(ciphertext, key, iv []byte, padding Padding) ([]byte, error) 
 		return nil, err
 	}
 	var blockSize = block.BlockSize()
+	if len(iv) < blockSize {
+		return nil, ErrInvalidIVSize
+	}
 	iv = iv[:blockSize]
+
+	if len(ciphertext) == 0 || len(ciphertext)%blockSize != 0 {
+		return nil, ErrCiphertextNotAligned
+	}
 
 	var dst = make([]byte, len(ciphertext))
 
@@ -118,6 +142,9 @@ func AESCFBEncrypt(plaintext, key, iv []byte, padding Padding) ([]byte, error) {
 		return nil, err
 	}
 	var blockSize = block.BlockSize()
+	if len(iv) < blockSize {
+		return nil, ErrInvalidIVSize
+	}
 	iv = iv[:blockSize]
 
 	src, err := padding.Pad(plaintext, blockSize)
@@ -137,6 +164,9 @@ func AESCFBDecrypt(ciphertext, key, iv []byte, padding Padding) ([]byte, error) 
 		return nil, err
 	}
 	var blockSize = block.BlockSize()
+	if len(iv) < blockSize {
+		return nil, ErrInvalidIVSize
+	}
 	iv = iv[:blockSize]
 
 	var dst = make([]byte, len(ciphertext))
@@ -176,8 +206,12 @@ func AESECBDecrypt(ciphertext, key []byte, padding Padding) ([]byte, error) {
 		return nil, err
 	}
 
-	var dst = make([]byte, len(ciphertext))
 	var blockSize = block.BlockSize()
+	if len(ciphertext) == 0 || len(ciphertext)%blockSize != 0 {
+		return nil, ErrCiphertextNotAligned
+	}
+
+	var dst = make([]byte, len(ciphertext))
 	var start = 0
 	var end = blockSize
 

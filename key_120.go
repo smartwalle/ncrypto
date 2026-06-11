@@ -1,4 +1,4 @@
-//go:build go1.20.0
+//go:build go1.20
 
 package ncrypto
 
