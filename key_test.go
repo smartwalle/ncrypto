@@ -1,8 +1,9 @@
 package ncrypto_test
 
 import (
-	"github.com/smartwalle/ncrypto"
 	"testing"
+
+	"github.com/smartwalle/ncrypto"
 )
 
 func TestDecodePrivateKey_RSA_PKCS1(t *testing.T) {

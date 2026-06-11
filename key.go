@@ -104,13 +104,13 @@ func (p PKCS8PrivateKey) ECDSAPrivateKey() (*ecdsa.PrivateKey, error) {
 	return privateKey, nil
 }
 
-func (p PKCS8PrivateKey) ED25519PrivateKey() (*ed25519.PrivateKey, error) {
+func (p PKCS8PrivateKey) ED25519PrivateKey() (ed25519.PrivateKey, error) {
 	if p.err != nil {
 		return nil, p.err
 	}
-	privateKey, ok := p.key.(*ed25519.PrivateKey)
+	privateKey, ok := p.key.(ed25519.PrivateKey)
 	if !ok {
-		return nil, errors.New("key is not a valid *ed25519.PrivateKey")
+		return nil, errors.New("key is not a valid ed25519.PrivateKey")
 	}
 	return privateKey, nil
 }
@@ -123,7 +123,7 @@ func DecodePublicKey(data []byte) PublicKeyDecoder {
 
 func (p PublicKeyDecoder) decode() ([]byte, error) {
 	if len(p) == 0 {
-		return nil, errors.New("invalid private key")
+		return nil, errors.New("invalid public key")
 	}
 
 	if p[0] == '-' {
@@ -194,13 +194,13 @@ func (p PKIXPublicKey) ECDSAPublicKey() (*ecdsa.PublicKey, error) {
 	return publicKey, nil
 }
 
-func (p PKIXPublicKey) ED25519PublicKey() (*ed25519.PublicKey, error) {
+func (p PKIXPublicKey) ED25519PublicKey() (ed25519.PublicKey, error) {
 	if p.err != nil {
 		return nil, p.err
 	}
-	publicKey, ok := p.key.(*ed25519.PublicKey)
+	publicKey, ok := p.key.(ed25519.PublicKey)
 	if !ok {
-		return nil, errors.New("key is not a valid *ed25519.PublicKey")
+		return nil, errors.New("key is not a valid ed25519.PublicKey")
 	}
 	return publicKey, nil
 }

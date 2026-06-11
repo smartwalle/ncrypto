@@ -2,8 +2,9 @@ package ncrypto_test
 
 import (
 	"encoding/hex"
-	"github.com/smartwalle/ncrypto"
 	"testing"
+
+	"github.com/smartwalle/ncrypto"
 )
 
 func TestNewRSAKeyPair(t *testing.T) {

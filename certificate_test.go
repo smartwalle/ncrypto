@@ -1,8 +1,9 @@
 package ncrypto_test
 
 import (
-	"github.com/smartwalle/ncrypto"
 	"testing"
+
+	"github.com/smartwalle/ncrypto"
 )
 
 func TestParseCertificate(t *testing.T) {

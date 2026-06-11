@@ -10,7 +10,7 @@ func split(data []byte, max int) [][]byte {
 	var src = make([]byte, len(data))
 	copy(src, data)
 
-	var chunks = make([][]byte, 0, (len(src)%max)+1)
+	var chunks = make([][]byte, 0, (len(src)/max)+1)
 	if len(src) <= max {
 		return append(chunks, src)
 	}

@@ -2,8 +2,9 @@ package ncrypto_test
 
 import (
 	"encoding/hex"
-	"github.com/smartwalle/ncrypto"
 	"testing"
+
+	"github.com/smartwalle/ncrypto"
 )
 
 // AES Tool https://www.javainuse.com/aesgenerator

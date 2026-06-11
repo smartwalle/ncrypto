@@ -7,9 +7,10 @@ import (
 	"crypto/rand"
 	"errors"
 	"fmt"
-	"github.com/smartwalle/ncrypto/pbkdf2"
 	"hash"
 	"io"
+
+	"github.com/smartwalle/ncrypto/pbkdf2"
 )
 
 var (
