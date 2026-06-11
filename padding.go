@@ -6,7 +6,8 @@ import (
 )
 
 var (
-	ErrInvalidPadding = errors.New("invalid padding")
+	ErrInvalidBlockSize = errors.New("invalid block size")
+	ErrInvalidPadding   = errors.New("invalid padding")
 )
 
 type Padding interface {
@@ -19,12 +20,18 @@ type padding struct {
 }
 
 func (padding) Pad(src []byte, blockSize int) ([]byte, error) {
+	if blockSize <= 0 || blockSize > 255 {
+		return nil, ErrInvalidBlockSize
+	}
 	var pSize = blockSize - len(src)%blockSize
 	var pText = bytes.Repeat([]byte{byte(pSize)}, pSize)
 	return append(src, pText...), nil
 }
 
 func (padding) Unpad(src []byte, blockSize int) ([]byte, error) {
+	if blockSize <= 0 || blockSize > 255 {
+		return nil, ErrInvalidBlockSize
+	}
 	var srcLen = len(src)
 	if srcLen == 0 {
 		return nil, ErrInvalidPadding
@@ -54,12 +61,12 @@ type PKCS5Padding struct {
 	padding
 }
 
-func (p PKCS5Padding) Pad(src []byte, blockSize int) ([]byte, error) {
-	return p.padding.Pad(src, blockSize)
+func (p PKCS5Padding) Pad(src []byte, _ int) ([]byte, error) {
+	return p.padding.Pad(src, 8)
 }
 
-func (p PKCS5Padding) Unpad(src []byte, blockSize int) ([]byte, error) {
-	return p.padding.Unpad(src, blockSize)
+func (p PKCS5Padding) Unpad(src []byte, _ int) ([]byte, error) {
+	return p.padding.Unpad(src, 8)
 }
 
 type PKCS7Padding struct {
@@ -78,25 +85,34 @@ type ZeroPadding struct {
 }
 
 func (p ZeroPadding) Pad(src []byte, blockSize int) ([]byte, error) {
-	var pSize = blockSize - len(src)%blockSize
-	if pSize == 0 {
-		return src, ErrInvalidPadding
+	if blockSize <= 0 {
+		return nil, ErrInvalidBlockSize
 	}
-	var pText = bytes.Repeat([]byte{0}, pSize)
+	var remainder = len(src) % blockSize
+	if remainder == 0 {
+		return src, nil
+	}
+	var pText = bytes.Repeat([]byte{0}, blockSize-remainder)
 	return append(src, pText...), nil
 }
 
 func (p ZeroPadding) Unpad(src []byte, blockSize int) ([]byte, error) {
-	return bytes.TrimFunc(src,
-		func(r rune) bool {
-			return r == rune(0)
-		}), nil
+	if blockSize <= 0 {
+		return nil, ErrInvalidBlockSize
+	}
+	return bytes.TrimRight(src, "\x00"), nil
 }
 
 type NoPadding struct {
 }
 
 func (p NoPadding) Pad(src []byte, blockSize int) ([]byte, error) {
+	if blockSize <= 0 {
+		return nil, ErrInvalidBlockSize
+	}
+	if len(src)%blockSize != 0 {
+		return nil, ErrInvalidPadding
+	}
 	return src, nil
 }
 
